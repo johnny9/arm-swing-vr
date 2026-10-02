@@ -76,7 +76,7 @@ ColumnLayout {
     }
     Text {
         Layout.fillWidth: true
-        text: "These choices are saved as configuration. Controller support and game compatibility have not yet been validated."
+        text: "Live input currently supports Valve Index / Knuckles controllers. A Steam App ID restricts activation to that game's process. Headset testing is still required for game compatibility."
         color: Theme.tertiary
         font.pixelSize: 12
         wrapMode: Text.WordWrap

@@ -93,6 +93,12 @@ class QmlUiTests : public QObject {
         click("removeMapping");
         QCOMPARE(controller_->mappings()->rowCount(), 0);
     }
+    void runtimeControlsArmAndStopTheProfile() {
+        click("runtimeToggle");
+        QVERIFY(controller_->runtimeArmed());
+        click("runtimeToggle");
+        QVERIFY(!controller_->runtimeArmed());
+    }
     void popupSelectionUpdatesTheDraft() {
         click("armsCombo");
         QTRY_VERIFY(item("comboOption_1") && item("comboOption_1")->isVisible());

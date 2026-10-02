@@ -133,7 +133,7 @@ ColumnLayout {
     }
     Text {
         Layout.fillWidth: true
-        text: "Mappings are saved with this game profile. Applying them in VR will be available with the input backend."
+        text: "Live mappings currently support Index A/B clicks. Map another physical input to the activation button's original game action to keep that action available."
         color: Theme.tertiary
         font.pixelSize: 12
         wrapMode: Text.WordWrap

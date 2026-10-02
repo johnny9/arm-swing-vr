@@ -11,6 +11,14 @@ themes and compact layouts. Controller tests cover mapping edits without model
 resets, duplication, failed saves, and appearance/recent-file persistence. These tests need
 no headset. The Clang sanitizer preset enables ASan and UBSan.
 
+Backend integration tests now load the compiled OpenVR adapter for three system
+ABIs through C++ and flat-table clients, and load the OpenXR layer through the
+installed Khronos loader into a controlled runtime. `ctest --preset debug -L integration`
+runs that subset. These fixtures model runtime behavior, not actual hardware.
+Windows DLLs can be built with `cmake/mingw64.cmake` and exercised with
+`tools/test_wine.py` in a dedicated prefix. See [VR-INTEGRATION.md](VR-INTEGRATION.md)
+for exact commands, coverage, and local validation evidence.
+
 To regenerate visual QA captures without changing real user profiles:
 
 ```sh
@@ -25,7 +33,8 @@ Node.js, npm package, or OpenAI service at runtime.
 The current development machine has Qt 6.11.2, GCC, Clang, CMake, Ninja, GDB, and
 the OpenXR development files. GCC sanitizer runtimes were missing at initial
 inspection; Clang's sanitizer runtime compiled and ran successfully. No system
-package installation is required for the current scaffold.
+package installation is required for this prototype. The installed MinGW-w64
+compiler and Proton Wine also built and exercised the Windows backends.
 
 Use a normal host session for real GPU/device/runtime tests. A restricted build
 sandbox can compile successfully while lacking access required for SteamVR.
@@ -35,24 +44,22 @@ LeakSanitizer also needs process-inspection access that some sandboxes prohibit.
 If it reports that it cannot operate under ptrace, run the same tests in a normal
 host session. Do not disable leak checking in CI to hide that environment issue.
 
-## Runtime work still required
+## Runtime work still required before game certification
 
-1. Pin and audit the Valve/Khronos SDK revisions before integrating them.
-2. Implement a runtime-independent C++ arm-motion processor. Replay timestamped
-   pose recordings to test start/stop, frame-rate independence, jitter, head/body
-   movement compensation, and accidental arm motion during normal interactions.
-3. Build small OpenVR/OpenXR diagnostic applications that report the input values
-   actually delivered. Cover OpenVR legacy input and SteamVR actions; cover both
-   vector2 and scalar float OpenXR axes, subaction paths, and action-set focus.
-4. Verify driver/layer loading in native Linux and the real Proton/Steam runtime
+1. Collect real pose traces to complement the synthetic replay suite. Tune
+   filtering against jitter and ordinary interactions while the activation input
+   is held; assess comfort and accidental motion in the headset.
+2. Verify the private OpenXR action set and each game's actual OpenVR bindings.
+   Unsupported/ambiguous click bindings pass through and can prevent activation.
+3. Extend runtime diagnostics with recorded game observations, beyond the existing
+   loader/API fixtures and initialization probes.
+4. Verify adapter/layer loading in native Linux and the real Proton/Steam runtime
    environment. A host build may need a Steam Linux Runtime SDK build to satisfy
    library ABI requirements inside its containers.
-5. Verify input suppression/remapping as well as added movement. A virtual
-   treadmill controller alone does not prove control over physical-controller
-   inputs. Preserve ordinary game controls and make input ownership explicit.
-6. Add explicit, reversible per-user registration and uninstall tooling. Record
-   and restore configuration that the tool changes. Builds/tests must not install
-   runtime plugins or replace game libraries automatically.
+5. Validate input suppression/remapping and preserved normal controls inside each
+   game, including controller events and complex bindings outside current support.
+6. Exercise per-game installation/removal on the chosen game using the reversible
+   helper. Builds/tests never install plugins or replace real game libraries.
 
 Useful tools: GDB, SteamVR logs, Proton logs, SteamVR input bindings, and Khronos
 [API dump/core validation layers](https://github.com/KhronosGroup/OpenXR-SDK-Source/blob/main/src/api_layers/README.md).

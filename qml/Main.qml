@@ -254,9 +254,22 @@ ApplicationWindow {
                         color: Theme.tertiary
                     }
                     Text {
-                        text: "VR output not connected"
+                        Layout.fillWidth: true
+                        text: window.controller.runtimeStatus
                         color: Theme.tertiary
                         font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
+                    AppButton {
+                        objectName: "runtimeToggle"
+                        text: window.controller.runtimeArmed ? "Stop input" : "Enable profile"
+                        primary: window.controller.runtimeArmed
+                        onClicked: window.controller.runtimeArmed ? window.controller.stopRuntime() : window.controller.startRuntime()
+                    }
+                    AppButton {
+                        text: "Launch setup"
+                        ghost: true
+                        onClicked: launchSetup.open()
                     }
                 }
             }
@@ -344,7 +357,7 @@ ApplicationWindow {
                     elide: Text.ElideRight
                 }
                 Text {
-                    text: "PROFILE EDITOR PREVIEW"
+                    text: "VR INPUT PROTOTYPE"
                     color: Theme.tertiary
                     font.pixelSize: 10
                     font.letterSpacing: 0.6
@@ -491,6 +504,60 @@ ApplicationWindow {
         function onErrorOccurred(message) {
             errorDialog.message = message;
             errorDialog.open();
+        }
+    }
+    Dialog {
+        id: launchSetup
+        anchors.centerIn: parent
+        width: Math.min(680, window.width - 48)
+        modal: true
+        padding: 24
+        background: Rectangle {
+            color: Theme.elevated
+            radius: 16
+            border.color: Theme.border
+        }
+        contentItem: ColumnLayout {
+            spacing: 20
+            Text {
+                text: "Connect this game"
+                color: Theme.text
+                font.pixelSize: 22
+                font.weight: Font.DemiBold
+            }
+            Text {
+                Layout.fillWidth: true
+                text: "Native Linux launch options are shown below. OpenVR games that load their API directly also need the reversible per-game installer in docs/VR-INTEGRATION.md. Set the game to head-relative smooth locomotion and keep this editor open; editing the profile stops input."
+                color: Theme.secondary
+                wrapMode: Text.WordWrap
+            }
+            TextArea {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 150
+                text: window.controller.launchCommand
+                readOnly: true
+                selectByMouse: true
+                wrapMode: TextEdit.WrapAnywhere
+                color: Theme.text
+                font.pixelSize: 12
+                background: Rectangle {
+                    radius: 8
+                    color: Theme.sidebar
+                    border.color: Theme.border
+                }
+            }
+            Text {
+                Layout.fillWidth: true
+                text: "Proton games need the Windows backend and separate setup. See docs/VR-INTEGRATION.md. This prototype supports Index A/B clicks and simple joystick bindings; game compatibility still needs headset testing."
+                color: Theme.secondary
+                wrapMode: Text.WordWrap
+            }
+            AppButton {
+                Layout.alignment: Qt.AlignRight
+                text: "Done"
+                primary: true
+                onClicked: launchSetup.close()
+            }
         }
     }
     Dialog {

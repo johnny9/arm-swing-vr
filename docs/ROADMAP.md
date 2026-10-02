@@ -11,18 +11,19 @@
 
 ## 1. First playable SteamVR prototype
 
-- [ ] Capture Index/Knuckles poses and activation input.
-- [ ] Implement and test the shared motion estimator with recorded traces.
-- [ ] Prove synthetic movement and physical-input remapping in a diagnostic app.
-- [ ] Extend the profile sidebar with discovery, explicit active profile, start/stop,
-      and a live input/output monitor. Keep saved settings separate from activation.
-- [ ] Handle stale samples, focus/tracking loss, and release all owned inputs on stop.
+- [x] Integrate pose/button acquisition at the OpenVR/OpenXR API boundary.
+- [x] Shared motion estimator with synthetic replay tests; hardware trace collection remains pending.
+- [x] Prove movement and button remapping in diagnostic clients using controlled runtime fixtures.
+- [x] Explicit Enable/Stop and live backend status; edits stop input.
+- [x] Handle stale samples, focus/tracking loss, and stop adding input after lease expiry.
+- [ ] Automatic game discovery and calibration.
 - [ ] Validate in Half-Life 2: VR Mod with the headset and controllers.
 
 ## 2. Additional games and OpenXR
 
 - [ ] Validate native OpenVR in The Talos Principle VR and interaction in H3VR.
-- [ ] Implement the OpenXR layer, including float/vector2 axes and subaction paths.
+- [x] OpenXR layer, including float/vector2 axes and subaction paths.
+- [x] Windows backend fixture tests under Proton Wine, including Metro's installed OpenXR loader.
 - [ ] Validate Proton/OpenXR in Metro Awakening.
 - [ ] Add per-game locomotion calibration, steering-frame conversion, sprint,
       activation passthrough policies, and controller/runtime profile variants.

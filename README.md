@@ -5,19 +5,20 @@ A Linux VR companion for arm-swing locomotion and controller mapping profiles,
 written in C++20 with a native Qt Quick/QML interface. Target backends are SteamVR/OpenVR
 and OpenXR, including games running through Proton.
 
-**Status: project bootstrap / profile editor preview.** The editor creates,
-opens, edits, and saves separate JSON files for each game's movement settings and
-controller mappings. It does **not** yet read controller tracking, inject movement,
-remap live inputs, automatically detect games, or install a VR driver. No game is
-currently certified compatible. Input paths in profiles are draft configuration;
-backend-specific validation will be added before they can be activated.
+**Status: experimental VR input prototype.** The editor manages per-game JSON
+profiles and explicitly enables/stops live input. Native Linux and Windows
+OpenVR adapters and an OpenXR API layer apply arm-swing movement and Index A/B
+click mappings inside the selected game's process. Automated tests cover both
+backends; **no game is certified compatible yet**. See [setup and test evidence](docs/VR-INTEGRATION.md).
 
 ## Build
 
-Requirements: a C++20 compiler, CMake 3.24+, Ninja, and Qt 6.4+ Core, GUI, QML,
+Requirements: a C++20 compiler, Python 3, CMake 3.24+, Ninja, the OpenXR loader
+development package (for integration tests), and Qt 6.4+ Core, GUI, QML,
 Quick, Quick Controls 2, and Test development packages. The QML runtime modules
 for Quick, Controls, Layouts, Window, Dialogs, Templates, and WorkerScript must
-also be installed. No VR runtime is required to build this preview.
+also be installed. Valve/Khronos API headers are pinned in the repository.
+No headset or active VR runtime is required for the automated tests.
 
 ```sh
 cmake --preset debug
@@ -34,6 +35,14 @@ Unsaved changes prompt before a profile is replaced or the application closes.
 Ctrl+N/O/S and Ctrl+Shift+S provide keyboard shortcuts. Light/dark appearance and
 recent file paths are stored locally; no online account or service is used.
 
+**Enable profile** arms the current settings; **Stop input** releases them. Edits
+stop input automatically. The backend also stops adding movement on activation
+release, invalid tracking, lost focus, or an expired editor heartbeat. Manual
+stick input takes priority. Set the game to head-relative smooth locomotion.
+Per-game backend loading is explicit; builds/tests never modify Steam games,
+bindings, drivers, or the active OpenXR runtime. See [VR integration](docs/VR-INTEGRATION.md)
+for native Linux and Proton setup and current limits.
+
 The QML theme adapts selected tokens from OpenAI's public MIT-licensed Apps SDK UI,
 which OpenAI documents as matching ChatGPT's design system. This is an independent
 native implementation, not ChatGPT desktop's private UI code. See [design and
@@ -49,18 +58,18 @@ cmake --build --preset asan
 ctest --preset asan
 ```
 
-Qt Quick interaction and rendering tests run offscreen. A passing test suite verifies profile behavior;
-it does not establish SteamVR or game compatibility. See [development and
+Qt Quick tests run offscreen. Backend tests load the real plugin binaries with
+controlled runtime fixtures, including the installed Khronos loader for OpenXR.
+Passing them does not establish SteamVR or game compatibility. See [development and
 integration testing](docs/DEVELOPMENT.md).
 
-## Implementation direction
+## Architecture
 
-- A shared C++ motion processor with deterministic recording/replay tests.
-- A Qt desktop application for per-game profiles, calibration, and diagnostics.
-- A SteamVR driver/backend and a portable OpenXR API layer, tested separately.
-- Explicit input ownership, normal-controller passthrough, and neutral output on
-  stop, lost tracking, lost focus, stale data, or a profile change.
-- OpenXR support for both two-dimensional actions and separate scalar X/Y actions.
+- A runtime-independent C++ motion processor with deterministic synthetic replay tests.
+- A Qt Quick editor, explicit profile activation, and backend status.
+- An OpenVR client API adapter and an OpenXR API layer, tested separately.
+- Physical-input passthrough, simultaneous button remaps, and bounded movement.
+- OpenXR vector2 and separate scalar X/Y actions, with subaction-path filtering.
 
 The first hardware milestone is arm-swing movement plus an activation-button
 mapping in Half-Life 2: VR Mod on Linux SteamVR. See the [roadmap](docs/ROADMAP.md).

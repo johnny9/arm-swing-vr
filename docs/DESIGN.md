@@ -31,6 +31,8 @@ avoid losing focus while editing. New/open/recent/close transitions share one
 unsaved-changes flow. Save validation and atomic writes remain in C++.
 
 Screenshots use a test profile named Half-Life 2 VR. They demonstrate layout, not
-game compatibility. VR output remains explicitly disconnected in this preview.
+game compatibility. The header provides explicit enable/stop controls, backend
+connection status, and per-game launch setup. Editing or switching a profile
+stops live input; a profile must be enabled again after changing its settings.
 
 ![Light appearance](images/profile-editor-light.png)

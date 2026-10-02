@@ -30,7 +30,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build g++ clang libclang-rt-dev qt6-base-dev qt6-declarative-dev \
+          sudo apt-get install -y cmake ninja-build python3 g++ clang libclang-rt-dev libopenxr-dev qt6-base-dev qt6-declarative-dev \
             qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
             qml6-module-qtquick-window qml6-module-qtquick-dialogs qml6-module-qtquick-templates \
             qml6-module-qtqml-workerscript
@@ -47,3 +47,39 @@ jobs:
         run: ctest --test-dir build/ci --output-on-failure
       - name: Check installation layout
         run: cmake --install build/ci --prefix "$RUNNER_TEMP/arm-swing-vr-install"
+  windows-backends:
+    runs-on: ubuntu-24.04
+    name: Windows backends / MinGW and Wine
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install cross-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build python3 g++-mingw-w64-x86-64 wine64 wine xvfb xauth
+      - name: Configure and build Windows backends
+        run: |
+          cmake -S . -B build/windows -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/mingw64.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+          cmake --build build/windows --parallel 2
+      - name: Check out the pinned Khronos loader
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: KhronosGroup/OpenXR-SDK
+          ref: f2448a8797c85814aa892efc1ab8707900fbcc78 # release-1.1.63
+          path: build/openxr-sdk
+          persist-credentials: false
+      - name: Build the Windows Khronos loader
+        # MinGW's desktop headers lack the Windows SDK's SYSTEM partition macro.
+        run: |
+          cmake -S build/openxr-sdk -B build/openxr-windows -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/cmake/mingw64.cmake" \
+            -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_API_LAYERS=OFF \
+            -DDYNAMIC_LOADER=ON -DBUILD_WITH_SYSTEM_JSONCPP=OFF \
+            -DCMAKE_CXX_FLAGS=-DWINAPI_PARTITION_SYSTEM=0
+          cmake --build build/openxr-windows --target openxr_loader --parallel 2
+      - name: Exercise Windows OpenVR and OpenXR under Wine
+        run: >-
+          xvfb-run -a python3 tools/test_wine.py --wine /usr/bin/wine
+          --build build/windows --prefix build/armswing-ci-prefix
+          --openxr-loader build/openxr-windows/src/loader/libopenxr_loader.dll

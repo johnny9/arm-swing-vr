@@ -8,6 +8,31 @@
 class ControllerTests : public QObject {
     Q_OBJECT
   private slots:
+    void runtimeLeaseStopsOnEditsAndRejectsUnsupportedInputs() {
+        QTemporaryDir dir;
+        const QString settings = dir.filePath("ui.ini");
+        ProfileController controller(settings);
+        QVERIFY(controller.startRuntime());
+        QVERIFY(controller.runtimeArmed());
+        QVERIFY(QFileInfo::exists(settings + ".control"));
+        controller.setField("sensitivity", 1.2);
+        QVERIFY(!controller.runtimeArmed());
+        QVERIFY(!QFileInfo::exists(settings + ".control"));
+        QVERIFY(controller.startRuntime());
+        controller.mappings()->add();
+        QVERIFY(!controller.runtimeArmed());
+        controller.newProfile();
+        controller.setField("activation_input", "unsupported-input");
+        QVERIFY(!controller.startRuntime());
+        QVERIFY(!controller.runtimeArmed());
+        controller.newProfile();
+        QVERIFY(controller.startRuntime());
+        ProfileController second(settings);
+        QVERIFY(!second.startRuntime());
+        QVERIFY(controller.runtimeArmed());
+        controller.stopRuntime();
+        QVERIFY(second.startRuntime());
+    }
     void editingMappingsDoesNotResetTheModel() {
         MappingModel model;
         model.add();

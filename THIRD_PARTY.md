@@ -2,8 +2,8 @@
 # Third-party dependency register
 
 Selected OpenAI Apps SDK UI design tokens are adapted in qml/Theme.qml under MIT;
-their provenance and license are recorded below. No third-party SDK binaries are
-vendored. The GPL text in LICENSE is the unmodified Free Software Foundation
+their provenance and license are recorded below. Public VR API headers are
+vendored; no third-party SDK binaries are vendored. The GPL text in LICENSE is the unmodified Free Software Foundation
 license document, copied from the system's Bash license file; this is not an
 import of Bash implementation code. The license document permits verbatim copying.
 
@@ -14,6 +14,9 @@ import of Bash implementation code. The license document permits verbatim copyin
 | Qt 6 Core/GUI, QML/Quick, Quick Controls 2 and Quick Dialogs (Qt Base / Qt Declarative) | Dynamically linked native application/profile support and QML runtime | Use the LGPL-3.0 option where offered for these modules; retain Qt notices and comply with its source and relinking requirements when bundling it. Qt also offers GPL/commercial alternatives. |
 | Qt 6 Test (Qt Base) | Development/test executables only | Same upstream licensing choices; not installed with the application. |
 | C++ standard library | Compiler runtime | Toolchain-specific terms and exceptions; inventory the actual runtime before a binary release. |
+| Python 3 | Build-time generation and optional setup/test scripts | Interpreter is not bundled. |
+| Khronos OpenXR loader | Integration tests and runtime diagnostics | Dynamically loaded from the host; CI cross-builds the pinned SDK 1.1.63 loader for Wine tests. Apache-2.0 upstream terms, with upstream third-party notices. Not bundled with the application. |
+| MinGW-w64 / GCC runtimes | Windows backend cross-builds | Static compiler runtimes in the local test DLLs; GCC Runtime Library Exception and component-specific MinGW notices/source must accompany a binary release. |
 
 Qt includes components under additional licenses. A release must inventory the
 specific Qt build and deployed plugins, not rely on this summary as their notices.
@@ -39,16 +42,24 @@ Sources: [Qt licensing](https://doc.qt.io/qt-6/licensing.html),
   were imported. Other QML components and line icons are original project code
   under GPL-3.0-or-later. The combined application remains GPL-3.0-or-later.
 
-## Planned dependencies — not linked or bundled yet
+## Vendored VR API declarations
 
-| Component | Upstream baseline | Planned use |
+All files below are unmodified upstream files, with licenses installed alongside
+the backends. Valve declarations are compiled in version-specific namespaces so
+different SDK generations do not conflict. Generated forwarding methods are
+original project code; no runtime implementation or vtable patching is imported.
+
+| Source | Exact revision | Files / terms |
 | --- | --- | --- |
-| [Valve OpenVR SDK](https://github.com/ValveSoftware/openvr/blob/master/LICENSE) | BSD-3-Clause | SteamVR integration; preserve Valve's license and attribution. |
-| [Khronos OpenXR SDK](https://github.com/KhronosGroup/OpenXR-SDK/blob/main/LICENSE) | Apache-2.0, subject to per-file terms | OpenXR API layer and loader integration; preserve required licenses/notices. |
+| [Valve OpenVR v2.15.6](https://github.com/ValveSoftware/openvr/tree/0924064316de3effbcd1acf1e309182a2deb1c05) | `0924064316de3effbcd1acf1e309182a2deb1c05` | `headers/openvr.h`, `headers/openvr_capi.h`, `LICENSE`; BSD-3-Clause, Valve Corporation. |
+| [Valve OpenVR v2.0.10](https://github.com/ValveSoftware/openvr/tree/15f0838a0487feb7da60acd39aab8099b994234c) | `15f0838a0487feb7da60acd39aab8099b994234c` | `headers/openvr.h` saved as `legacy/openvr_2_0_10.h`; BSD-3-Clause. |
+| [Valve OpenVR v1.0.17](https://github.com/ValveSoftware/openvr/tree/1fb1030f2ac238456dca7615a4408fb2bb42afb6) | `1fb1030f2ac238456dca7615a4408fb2bb42afb6` | `headers/openvr.h` saved as `legacy/openvr_1_0_17.h`; BSD-3-Clause. |
+| [Khronos OpenXR SDK 1.1.63](https://github.com/KhronosGroup/OpenXR-SDK/tree/f2448a8797c85814aa892efc1ab8707900fbcc78) | `f2448a8797c85814aa892efc1ab8707900fbcc78` | `include/openxr/{openxr.h,openxr_platform_defines.h,openxr_loader_negotiation.h}`, `LICENSE`; Apache-2.0 option selected for dual-licensed headers. Copyright Khronos Group. |
 
-Pin exact SDK revisions and record the licenses of the files actually imported
-when adding these dependencies. Do not confuse Valve's OpenVR SDK with its
-proprietary Steamworks SDK. No Steamworks SDK files are included or linked.
+Do not confuse the public OpenVR SDK with the proprietary Steamworks SDK.
+No Steamworks SDK files are included or linked. Installed games' loader libraries
+are used only as local interoperability test inputs and are never copied into
+the repository or redistributed.
 
 Existing locomotion projects have informed research only. No implementation or
 profiles from Natural Locomotion, OpenVR-WalkInPlace, katwalk-linux, ArmSwinger,

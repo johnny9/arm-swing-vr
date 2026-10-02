@@ -175,7 +175,7 @@ ColumnLayout {
     }
     Text {
         Layout.fillWidth: true
-        text: "Activation, measured arms, and movement controller can be set independently."
+        text: "Set the game to head-relative smooth locomotion. Manual stick input takes priority over arm swinging."
         color: Theme.tertiary
         font.pixelSize: 12
         wrapMode: Text.WordWrap
