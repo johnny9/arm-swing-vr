@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+/build/
+/dist/
+/CMakeUserPresets.json
+/.cache/
+/.idea/
+/.vscode/
+/compile_commands.json
+*.user
+# Local tooling and credentials are never project inputs.
+/.agents/
+/.aws/
+/.codex/
+.env
+.env.*
