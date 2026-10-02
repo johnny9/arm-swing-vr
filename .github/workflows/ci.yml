@@ -34,13 +34,35 @@ jobs:
             qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
             qml6-module-qtquick-window qml6-module-qtquick-dialogs qml6-module-qtquick-templates \
             qml6-module-qtqml-workerscript
+      - name: Check out the pinned loader for sanitizer tests
+        if: matrix.sanitizers == 'ON'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: KhronosGroup/OpenXR-SDK
+          ref: f2448a8797c85814aa892efc1ab8707900fbcc78 # release-1.1.63
+          path: build/openxr-sdk
+          persist-credentials: false
+      - name: Build the loader for sanitizer tests
+        if: matrix.sanitizers == 'ON'
+        # Ubuntu's loader 1.0.20 leaks LoaderInstance on xrDestroyInstance.
+        # Keep testing that version in the GCC job and use upstream's fixed
+        # loader here, with all application/layer sanitizer checks enabled.
+        run: |
+          cmake -S build/openxr-sdk -B build/openxr-linux -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=OFF -DBUILD_API_LAYERS=OFF \
+            -DBUILD_WITH_SYSTEM_JSONCPP=OFF
+          cmake --build build/openxr-linux --target openxr_loader --parallel 2
       - name: Configure
-        run: >-
-          cmake -S . -B build/ci -G Ninja
-          -DCMAKE_BUILD_TYPE=Debug
-          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
-          -DBUILD_TESTING=ON
-          -DARMSWING_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+        run: |
+          loader_options=()
+          if [ '${{ matrix.sanitizers }}' = ON ]; then
+            loader_options+=("-DARMSWING_OPENXR_LOADER=$GITHUB_WORKSPACE/build/openxr-linux/src/loader/libopenxr_loader.so")
+          fi
+          cmake -S . -B build/ci -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} \
+            -DBUILD_TESTING=ON \
+            -DARMSWING_ENABLE_SANITIZERS=${{ matrix.sanitizers }} "${loader_options[@]}"
       - name: Build
         run: cmake --build build/ci --parallel 2
       - name: Test

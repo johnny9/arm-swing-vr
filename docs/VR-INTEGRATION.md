@@ -136,6 +136,14 @@ the Windows OpenXR test. CI builds the public Khronos loader from the pinned
 OpenXR-SDK 1.1.63 revision and runs both Windows backends under Wine; no game
 installation is required. Its workflow also documents the cross-build commands.
 
+The Linux GCC job retains Ubuntu's system loader 1.0.20 for compatibility coverage.
+The Clang sanitizer job uses the pinned 1.1.63 loader: 1.0.20's
+`ActiveLoaderInstance::Remove()` releases its owning pointer without deleting the
+loader instance. Reproducing the same test locally produced a 1,464-byte leak
+with 1.0.20 and none with 1.1.63. No leak detection or application/layer sanitizer
+checks are disabled. See the upstream [old removal implementation](https://github.com/KhronosGroup/OpenXR-SDK/blob/171dcb3c32a53eee4fb74195afc626cfce12e14b/src/loader/loader_instance.cpp#L65)
+and [fixed implementation](https://github.com/KhronosGroup/OpenXR-SDK/blob/f2448a8797c85814aa892efc1ab8707900fbcc78/src/loader/loader_instance.cpp#L63).
+
 The tests exercise the **compiled plugin binaries**, not alternate mock backend
 implementations. Controlled downstream fixtures supply deterministic tracking
 and button values. OpenXR passes through a real Khronos loader. Coverage includes
