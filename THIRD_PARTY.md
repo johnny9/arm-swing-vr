@@ -1,8 +1,9 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Third-party dependency register
 
-No third-party implementation source or SDK binaries are vendored in this
-bootstrap. The GPL text in LICENSE is the unmodified Free Software Foundation
+Selected OpenAI Apps SDK UI design tokens are adapted in qml/Theme.qml under MIT;
+their provenance and license are recorded below. No third-party SDK binaries are
+vendored. The GPL text in LICENSE is the unmodified Free Software Foundation
 license document, copied from the system's Bash license file; this is not an
 import of Bash implementation code. The license document permits verbatim copying.
 
@@ -10,17 +11,33 @@ import of Bash implementation code. The license document permits verbatim copyin
 
 | Component | Use | Selected terms / handling |
 | --- | --- | --- |
-| Qt 6 Core and Widgets (Qt Base) | Dynamically linked application/profile support | Use the LGPL-3.0 option; retain Qt notices and comply with its source and relinking requirements when bundling it. Qt also offers GPL/commercial alternatives. |
+| Qt 6 Core/GUI, QML/Quick, Quick Controls 2 and Quick Dialogs (Qt Base / Qt Declarative) | Dynamically linked native application/profile support and QML runtime | Use the LGPL-3.0 option where offered for these modules; retain Qt notices and comply with its source and relinking requirements when bundling it. Qt also offers GPL/commercial alternatives. |
 | Qt 6 Test (Qt Base) | Development/test executables only | Same upstream licensing choices; not installed with the application. |
 | C++ standard library | Compiler runtime | Toolchain-specific terms and exceptions; inventory the actual runtime before a binary release. |
 
 Qt includes components under additional licenses. A release must inventory the
 specific Qt build and deployed plugins, not rely on this summary as their notices.
-Qt Core/Widgets are used through public APIs; no Qt Marketplace or proprietary
+Qt is used through public APIs; no Qt Marketplace or proprietary
 module is required.
 
 Sources: [Qt licensing](https://doc.qt.io/qt-6/licensing.html),
 [Qt LGPL obligations](https://www.qt.io/development/open-source-lgpl-obligations).
+
+## Adapted UI design tokens
+
+- Upstream: [openai/apps-sdk-ui](https://github.com/openai/apps-sdk-ui).
+- Revision: `0f00143c7a639906f1621fe58e1b6be7b5bea46d`.
+- Original files: `src/styles/variables-primitive.css`,
+  `src/styles/variables-semantic.css`, `src/styles/variables-components.css`.
+- Copyright: 2025 OpenAI. License: MIT, preserved verbatim at
+  [third_party/apps-sdk-ui/LICENSE](third_party/apps-sdk-ui/LICENSE), installed with
+  application license notices.
+- Changes: selected neutral palette, surface/text roles, spacing and corner-radius
+  values translated from CSS into QML properties in `qml/Theme.qml`; extra layout
+  choices for a standalone desktop editor. The adapted theme file remains MIT.
+- No React components, web runtime, fonts, logos, or proprietary desktop assets
+  were imported. Other QML components and line icons are original project code
+  under GPL-3.0-or-later. The combined application remains GPL-3.0-or-later.
 
 ## Planned dependencies — not linked or bundled yet
 

@@ -3,10 +3,24 @@
 
 ## Current checks
 
-The CMake/CTest presets build the Qt profile editor and test serialization,
+The CMake/CTest presets build the C++/QML profile editor and test serialization,
 validation, per-game separation, preservation of existing files on invalid saves,
-profile switching, and independent input/output-hand selection. These tests need
+profile switching, and independent input/output-hand selection. QML tests use
+real keyboard/mouse input, exercise unsaved-change dialogs, and render dark/light
+themes and compact layouts. Controller tests cover mapping edits without model
+resets, duplication, failed saves, and appearance/recent-file persistence. These tests need
 no headset. The Clang sanitizer preset enables ASan and UBSan.
+
+To regenerate visual QA captures without changing real user profiles:
+
+```sh
+ARMSWING_TEST_SCREENSHOTS=/tmp/arm-swing-vr-previews ctest --preset debug -R qml_ui
+```
+
+The QML tests use software rendering on the offscreen platform and temporary
+settings files. Also test the native graphics backend on the target desktop
+before a release. QML resources are embedded; the application needs no browser,
+Node.js, npm package, or OpenAI service at runtime.
 
 The current development machine has Qt 6.11.2, GCC, Clang, CMake, Ninja, GDB, and
 the OpenXR development files. GCC sanitizer runtimes were missing at initial

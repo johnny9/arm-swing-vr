@@ -19,7 +19,9 @@ proprietary product's code, assets, or profile database. Discuss any new depende
 whose terms would change the distribution plan before integrating it. Preserve
 per-file license terms even when the larger work is distributed under GPL.
 
-Use C++20, Qt 6 public APIs, and the checked-in clang-format configuration. Keep
+Use C++20, Qt Quick/QML, Qt 6 public APIs, and the checked-in clang-format configuration.
+Format QML with Qt's qmlformat. Keep shared visual tokens in qml/Theme.qml and
+preserve its MIT attribution; new application components use the project GPL. Keep
 motion processing independent of UI and runtime code. Keep runtime installations
 and registration explicit; the build and test suite must not modify SteamVR,
 Steam bindings, or OpenXR configuration.

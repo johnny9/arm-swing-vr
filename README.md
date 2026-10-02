@@ -2,7 +2,7 @@
 # Arm Swing VR
 
 A Linux VR companion for arm-swing locomotion and controller mapping profiles,
-written in C++20 with a Qt 6 Widgets interface. Target backends are SteamVR/OpenVR
+written in C++20 with a native Qt Quick/QML interface. Target backends are SteamVR/OpenVR
 and OpenXR, including games running through Proton.
 
 **Status: project bootstrap / profile editor preview.** The editor creates,
@@ -14,8 +14,10 @@ backend-specific validation will be added before they can be activated.
 
 ## Build
 
-Requirements: a C++20 compiler, CMake 3.24+, Ninja, and Qt 6.4+ Core, Widgets,
-and Test development packages. No VR runtime is required to build this preview.
+Requirements: a C++20 compiler, CMake 3.24+, Ninja, and Qt 6.4+ Core, GUI, QML,
+Quick, Quick Controls 2, and Test development packages. The QML runtime modules
+for Quick, Controls, Layouts, Window, Dialogs, Templates, and WorkerScript must
+also be installed. No VR runtime is required to build this preview.
 
 ```sh
 cmake --preset debug
@@ -24,10 +26,20 @@ ctest --preset debug
 ./build/debug/arm-swing-vr
 ```
 
-Use **File → New/Open/Save/Save as** to manage profiles. Save as can create a
-variant for another game or controller. Activation input, measured arms, output
-hand, and steering reference are independent settings. Unsaved changes prompt
-before a profile is replaced or the application closes.
+Use the sidebar to create/open profiles or return to recent files. **Save profile**,
+**Save as**, and **Duplicate** manage each game's settings. The Arm swing,
+Controller mappings, and Game setup pages share a C++ profile model. Activation
+input, measured arms, output hand, and steering reference are independent settings.
+Unsaved changes prompt before a profile is replaced or the application closes.
+Ctrl+N/O/S and Ctrl+Shift+S provide keyboard shortcuts. Light/dark appearance and
+recent file paths are stored locally; no online account or service is used.
+
+The QML theme adapts selected tokens from OpenAI's public MIT-licensed Apps SDK UI,
+which OpenAI documents as matching ChatGPT's design system. This is an independent
+native implementation, not ChatGPT desktop's private UI code. See [design and
+attribution](docs/DESIGN.md).
+
+![Native QML profile editor in dark appearance](docs/images/profile-editor-dark.png)
 
 For AddressSanitizer and UndefinedBehaviorSanitizer checks with Clang:
 
@@ -37,7 +49,7 @@ cmake --build --preset asan
 ctest --preset asan
 ```
 
-Qt widget tests run offscreen. A passing test suite verifies profile behavior;
+Qt Quick interaction and rendering tests run offscreen. A passing test suite verifies profile behavior;
 it does not establish SteamVR or game compatibility. See [development and
 integration testing](docs/DEVELOPMENT.md).
 
